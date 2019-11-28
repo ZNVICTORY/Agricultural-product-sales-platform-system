@@ -7,10 +7,15 @@
 			}
 		}
 	    ,{
-            "path" : "pages/register/register/register",
+            "path" : "pages/register/register",
             "style" : {}
-        }
+        },
+		{
+			"path" : "pages/login/login",
+			"style" : {}
+		}
     ],
+	
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
