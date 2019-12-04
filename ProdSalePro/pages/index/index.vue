@@ -1,9 +1,12 @@
 <template>
 	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
+		<image class="logo" src="../../static/kitty-BasicLogin/logo.png"></image>
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>
+		 <navigator url="/pages/login/login" hover-class="other-navigator-hover">
+		                    <button type="default">跳转登陆页面</button>
+		 </navigator>
 	</view>
 </template>
 
