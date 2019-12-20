@@ -5,8 +5,12 @@
 			<text class="title">{{title}}</text>
 		</view>
 		 <navigator url="/pages/login/login" hover-class="other-navigator-hover">
-		                    <button type="default">跳转登陆页面</button>
+		      <button type="default">跳转登陆页面</button>
 		 </navigator>
+		 <view>
+			 <navigator url="/pages/bus_pages/livePusher/livePusher">主播端</navigator>
+			 <navigator url="/pages/cus_pages/livePlayer/livePlayer">观众端</navigator>
+		 </view>
 	</view>
 </template>
 
@@ -19,6 +23,13 @@
 		},
 		onLoad() {
 
+		},
+		onShow() {
+			uni.showToast({
+				title:"显示成功",
+				duration:2000,
+				position: 'center'
+			})
 		},
 		methods: {
 

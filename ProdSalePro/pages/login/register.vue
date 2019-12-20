@@ -1,24 +1,17 @@
 <template>
 	<view class="content">
-		<view class="logo">
-			<image src="../../static/kitty-BasicLogin/logo.png"></image>
-		</view>
 		<view class="uni-form-item uni-column">
-		   <input type="tel" class="uni-input" placeholder="请输入手机号">
+		   <input type="number" length="11" class="uni-input" placeholder="请输入手机号" @blur="checkTel" v-model="userInfo.phone">
 		</view>
 		<view class="uni-form-item uni-column column-with-btn">
-			<input type="text" class="uni-input" placeholder="请输入图片验证码" v-model="captchaImg">
-			<image src="../../static/kitty-BasicLogin/captcha.jpg" mode="" class="img-captcha"></image>
-		</view>
-		<view class="uni-form-item uni-column column-with-btn">
-			<input type="text" class="uni-input" placeholder="请输入验证码" >
+			<input type="text" class="uni-input" placeholder="请输入验证码" v-model="userInfo.captcha">
 			<button :class="{ active: !disableCodeBtn }" :disabled="disableCodeBtn" @tap="sendCode" >{{ codeBtn.text }}</button>
 		</view>
 		<view class="uni-form-item uni-column">
-			<input type="password" class="uni-input" name="" placeholder="请输入密码" />
+			<input type="password" class="uni-input" name="" placeholder="请输入密码"  v-model="userInfo.password"/>
 		</view>
 		<view class="uni-form-item uni-column">
-			<input type="password" class="uni-input" name="" placeholder="确认密码" />
+			<input type="password" class="uni-input" name="" placeholder="确认密码" v-model="userInfo.repassword"/>
 		</view>
 		<button type="primary">注册</button>
 		<view class="links">已有账号？<view class="link-highlight" @tap="gotoLogin">点此登陆</view></view>
@@ -29,7 +22,12 @@
 	export default {
 		data() {
 			return {
-				captchaImg: '',
+				userInfo: {
+					phone: '',                 // 用户手机号
+					captcha: '',               // 手机验证码
+					password: '',              // 密码
+					repassword: ''             // 确认密码
+				},
 				seconds: 10, 
 				codeBtn: {
 					text: '获取验证码',
@@ -60,6 +58,14 @@
 			},
 			gotoLogin: function() {
 				uni.navigateTo({ url: 'login'})
+			},
+			checkTel() {
+				const pattern = new RegExp(/^1[3456789]\d{9}$/)
+				if(!pattern.test(this.userInfo.phone)) {
+					uni.showModal({
+						content: '输入错误'
+					})
+				}
 			}
 		},
 		computed:{

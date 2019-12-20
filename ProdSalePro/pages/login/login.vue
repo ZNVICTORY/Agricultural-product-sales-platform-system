@@ -4,10 +4,10 @@
 			<image src="../../static/kitty-BasicLogin/logo.png"></image>
 		</view>
 		<view class="uni-form-item uni-column">
-			<input type="tel"  v-model="phone" class="uni-input" placeholder="请输入手机号"/>
+			<input type="text"  v-model="userinfo.name" class="uni-input" placeholder="账号名称"/>
 		</view>
 		<view class="uni-form-item uni-column">
-			<input type="password" v-model="password" class="uni-input" placeholder="密码"/>
+			<input type="password" v-model="userinfo.password" class="uni-input" placeholder="密码"/>
 		</view>
 	    <button type="primary" @tap="login">登陆</button>
 		<view class="links">
@@ -22,24 +22,27 @@
 	export default {
 		data() {
 			return {
-				phone: '',
-				password: ''
+				userinfo: {
+					name: '',
+					password: ''
+				}
 			}
 		},
 		methods: {
-			login: function() {
-				this.$fetch({
-					url: '/login',
-					method: 'POST',
-					data: JSON.stringify({
-						phone: this.phone,
-						password: MD5.update(this.password).digest('hex')
+			login: async function() {
+				const result = await this.$apis.postLogin(this.userinfo)
+				if(result.code === '000001') {
+					uni.setStorageSync("token", result.data.token)
+					uni.navigateTo({
+						animationDuration: 500,
+						animationType: 'slide-in-right',
+						url: '../index/index'
 					})
-				}).then(data => {
-					console.log(data)
-				}).catch(err => {
-					console.log(err)
-				})
+				} else {
+					uni.showModal({
+						content: result.message
+					})
+				}
 			},
 			// 忘记密码
 			gotoForgetPassword: function() {

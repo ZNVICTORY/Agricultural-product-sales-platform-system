@@ -1,0 +1,184 @@
+<template>
+	<view class="btngroup" id="subBtn">
+		<button size="mini" @tap="back">返回</button>
+		<button size="mini" @tap="switchCamera">切换摄像头</button>
+		<button size="mini" @click="startPusher">推流</button>
+		<button size="mini" @click="stopPuser">结束推流</button>
+		<button size="mini" @click="pausePusher">推流暂停</button>
+		<button size="mini" @click="beauty">美颜</button>
+		<button size="mini" @click="offbeauty">美颜关闭</button>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				pusher: null,    // 推流
+				currentWebview: null, //容器，用于存放当前页面
+				begin: false,
+				livepushurl: 'rtmp://67845.livepush.myqcloud.com/live/test?txSecret=cc4e37f02333d118afc1046fe2b86704&txTime=5DF8FB7F' //推流地址,暂时用于测试
+			}
+		},
+		onShow() {
+			uni.getNetworkType({
+				success:(res) => {
+					console.log(res.networkType)
+					if(res.networkType !== 'wifi') {
+						uni.showModal({
+							title:'提示',
+							content: '当前非Wifi网络，请注意您的流量是否够用',
+							success:(res) => {
+								
+							}
+						})
+					}
+				}
+			}),
+			uni.onNetworkStatusChange(function(res){
+				console.log(res.isConnected)
+				console.log(res.networkType)
+				if(res.networkType != 'wifi' || res.networkType != '4g') {
+					uni.showModal({
+						title:'提示',
+						content:'当前网络差',
+						success: (res) => {
+							
+						}
+					})
+				}
+			})
+		},
+		onLoad() {
+			 this.getwebview()//获取webview
+		},
+		//返回的按钮
+		onBackPress(){
+			this.back()
+			console.log("BackButton Key pressed!" );
+			return true;
+		},
+		methods:{
+			/**
+			 * 获取当前显示的webview
+			 */
+			getwebview(){
+				var pages = getCurrentPages();  //获取当前 Webview 窗口对象：
+				var page = pages[pages.length - 1];
+				// #ifdef APP-PLUS
+				var getcurrentWebview = page.$getAppWebview();
+				// console.log(this.pages)
+				// console.log(this.page)
+				// console.log(JSON.stringify(page.$getAppWebview()))
+				this.currentWebview = getcurrentWebview;
+				// #endif
+				this.plusPushReady()//创建LivePusher对象
+			},
+			/**
+			 * 创建推流对象
+			 */
+			plusPushReady(){
+				// 创建直播推流控件
+				this.pusher = new plus.video.LivePusher('pusher' ,{
+					url: '' ,//推流地址
+					top: 0,  //距离头部0px
+					left: 0, 
+					width: '100%',
+					height: uni.getSystemInfoSync().windowHeight + 'px',
+					position: 'absolute',
+					beauty: '1', // 美颜 0 -off  1 -on
+					whiteness: '5', // 0, 1,2,3,4,5  0 不使用美白， 值越大，美白效果越好
+					aspect:'9:16',
+					zIndex: 0
+				});
+				// console.log(JSON.stringify(this.pusher))
+				console.log(JSON.stringify(this.currentWebview))
+				// 将创建的对象 添加到 currentWebView
+				this.currentWebview.append(this.pusher)
+				
+				console.log('after', JSON.stringify(this.currentWebview))
+				//监听状态事件变化)
+				this.pusher.addEventListener('statechange', (e) => {
+					console.log('statechange: '+JSON.stringify(e));
+				}, false)
+				const subBtn = uni.getSubNVueById('subBtn')
+				this.currentWebview.append(subBtn)
+			},
+			// // 美颜
+			beauty() {
+				this.pusher.options.beauty=1
+				this.plusPushReady()//创建LivePusher对象
+			},
+			// //美颜关闭
+			offbeauty() {
+				this.pusher.options.beauty = 0
+				this.plusPushReady()
+			},
+			//开始推流
+			startPusher() {
+				console.log(this.livepushurl)
+				if(!this.livepushurl) {
+					uni.showToast({
+						title:'推流地址不存在',
+						duration: 2000,
+						position: 'center'
+					})
+					return
+				}
+				this.beginlivepush()
+			},
+			// 切换摄像头
+			switchCamera() {
+				uni.showToast({
+					title: '切换摄像头',
+					duration:1500,
+					position: 'center'
+				})
+				console.log('qiehuan')
+				this.pusher.switchCamera()
+			},
+		    // 开始推流
+			beginlivepush() {
+					this.begin = true
+					// 设置推流服务器
+					this.pusher.setOptions({
+						url: this.livepushurl  // 推流地址
+						})
+				    this.pusher.start()  // 推流开启
+			},
+			//结束推流
+			stopPuser() {
+				this.pusher.stop() //结束推流
+			},
+			//暂停推流
+			pausePusher() {
+				this.pusher.pause() //暂停推流
+			},
+			//恢复推流
+			resumePusher() {
+				this.pusher.resume() //恢复推流
+			},
+			//关闭直播推流
+			closePusher () {
+				// 关闭操作将释放控件所有资源，不再可用。
+				this.pusher.close()
+			},
+			
+			// 返回
+			back() {
+				uni.redirectTo({
+					url: '../../index/index'
+				})
+			}
+		}
+	}
+</script>
+<style>
+	.btngroup {
+		position: absolute;
+		z-index: 1000;
+		bottom: 10upx;
+		flex-wrap: wrap;
+		z-index: 1000;
+	}
+</style>
